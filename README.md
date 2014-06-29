@@ -6,6 +6,17 @@ This is a web application which uses Amazon's [Product Advertising API](https://
 
 How to use?
 ------
+First of all, you need to register Product Advertising API service at Amazon. After that, please create a serucity.js file in the root directory of this project like below.
+
+* security.js
+```
+ module.exports = {
+   awsId     : 'xxxx',
+   awsSecret : 'yyy',
+   assocId   : 'zzz-22'
+ }
+```
+
 This repositry does not contain node_modules. So you have to install modules before starting this app.
 
 ```
@@ -15,7 +26,7 @@ $ node app.js
 
 node modules
 ------
-Please see package.json. I use express, ejs and apac npm modules, and also use grunt modules for developping.
+Please see package.json. I use express, ejs and [apac](https://www.npmjs.org/package/apac) npm modules, and also use grunt modules for developping.
 
 
 LICENSE
