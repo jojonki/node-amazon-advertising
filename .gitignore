@@ -1,3 +1,4 @@
+*.swp
 node_modules
 security.js
 public/bower_components/

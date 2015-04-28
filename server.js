@@ -1,33 +1,66 @@
+
 var express = require('express');
-var routes = require('./routes');
-var user = require('./routes/user');
-var http = require('http');
-var path = require('path');
-
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+var security = require('./security.js');
+var  serveIndex = require('serve-index');
 
-// all environments
-app.set('port', process.env.PORT || 8000);
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
+// amazon
+var util = require('util'),
+    OperationHelper = require('apac').OperationHelper;
 
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
+var parseString = require('xml2js').parseString;
 
-app.get('/', routes.index);
-app.get('/users', user.list);
+var option = {};
+app.get('/search/:key', function(req, res) {
+  option.track = req.params.key;
+  search(option);
+  res.sendStatus(200);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+});
+
+app.use(express.static(__dirname + '/public'));
+app.use(serveIndex(__dirname + '/public'));
+server.listen(3000);
+
+var search = function(option) {
+  console.log('search:', option.track);
+
+  var opHelper = new OperationHelper({
+      awsId     : security.awsId,
+      awsSecret : security.awsSecret,
+      assocId   : security.assocId,
+      endPoint  : 'ecs.amazonaws.jp'
+  });
+
+  opHelper.execute('ItemSearch', {
+    'SearchIndex': 'Books',
+    'Keywords': option.track,
+    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews',
+    'MerchantId': 'All'
+  }, function(err, resultXml) {
+    // http://docs.aws.amazon.com/AWSECommerceService/latest/DG/AnatomyofaResponse.html
+    parseString(resultXml, function (err, results) {
+      if(err) {
+        cosole.log(err);
+      } else {
+        var items = results.ItemSearchResponse.Items[0].Item;
+        console.log(items[0]);
+        // results.ItemSearchResponse.Items.forEach(function(item) {;
+        //   console.log(item); 
+        // });
+        io.sockets.emit('SearchResults', {items: items});
+      }
+    });
+  });
+
+};
+
+io.sockets.on('connection', function(socket) {
+  socket.on('msg', function(data) {
+    io.sockets.emit('msg', data);
+  });
 });
 
 
