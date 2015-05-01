@@ -112,12 +112,7 @@
     _.each(_.clone(products.models), function(model) {
         model.destroy();
     });
-    // products.each(function(model) {
-    //   if(model) {
-    //     console.log('destryo model', model);
-    //     model.destroy();
-    //   } else { console.log('model undefined'); }
-    // });
+    console.log(data);
     data.items.forEach(function(item) {
       if(_.has(item, 'OfferSummary')) { // except kindle price
         var product = new Product();

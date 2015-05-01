@@ -45,12 +45,15 @@ var search = function(option) {
         cosole.log(err);
       } else {
         if(results.hasOwnProperty('ItemSearchResponse')) {
+          console.log(results.ItemSearchResponse.Items[0]);
           var items = results.ItemSearchResponse.Items[0].Item;
-          console.log(items[0]);
-          // results.ItemSearchResponse.Items.forEach(function(item) {;
-          //   console.log(item); 
-          // });
-          io.sockets.emit('SearchResults', {items: items});
+          console.log(items);
+          if(items) {
+            // results.ItemSearchResponse.Items.forEach(function(item) {;
+            //   console.log(item); 
+            // });
+            io.sockets.emit('SearchResults', {items: items});
+          }
         } else {
           console.log('results doee not have ItemSearchResponse property');
         }
