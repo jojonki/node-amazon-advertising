@@ -17,7 +17,6 @@ app.get('/search/:key', function(req, res) {
   option.track = req.params.key;
   search(option);
   res.sendStatus(200);
-
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -35,9 +34,9 @@ var search = function(option) {
   });
 
   opHelper.execute('ItemSearch', {
-    'SearchIndex': 'Books',
+    'SearchIndex': 'All',
     'Keywords': option.track,
-    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews',
+    'ResponseGroup': 'ItemAttributes,Offers,Images,Reviews,IsEligibleForSuperSaverShipping',
     'MerchantId': 'All'
   }, function(err, resultXml) {
     // http://docs.aws.amazon.com/AWSECommerceService/latest/DG/AnatomyofaResponse.html
@@ -45,12 +44,16 @@ var search = function(option) {
       if(err) {
         cosole.log(err);
       } else {
-        var items = results.ItemSearchResponse.Items[0].Item;
-        console.log(items[0]);
-        // results.ItemSearchResponse.Items.forEach(function(item) {;
-        //   console.log(item); 
-        // });
-        io.sockets.emit('SearchResults', {items: items});
+        if(results.hasOwnProperty('ItemSearchResponse')) {
+          var items = results.ItemSearchResponse.Items[0].Item;
+          console.log(items[0]);
+          // results.ItemSearchResponse.Items.forEach(function(item) {;
+          //   console.log(item); 
+          // });
+          io.sockets.emit('SearchResults', {items: items});
+        } else {
+          console.log('results doee not have ItemSearchResponse property');
+        }
       }
     });
   });

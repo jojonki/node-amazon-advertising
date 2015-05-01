@@ -2,7 +2,13 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Amazon Search</title>
+
+  <link rel="stylesheet" type="text/css" href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="./bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+  <link rel="stylesheet" type="text/css" href="./bower_components/loading-indicator/dist/loading.min.css">
+      
+  <link rel="stylesheet" type="text/css" href="./css/app.css" />
 
   <script src="./bower_components/jquery/dist/jquery.min.js"></script>
   <script src="./bower_components/underscore/underscore-min.js"></script>
@@ -14,23 +20,65 @@
   <script src="./js/app.js"></script>
 </head>
 <body>
-  <h1>Amazon Serach</h1>
-  <form id="search-form">
-    <input type="text" id="search-key">
-    <input type="submit" value="search">
-  </form>
+  <div class="container">
+    <div class="page-header">
+      <h1>Amazon Search</h1>
+    </div>
+    <form id="search-form" role="form">
+      <div class="input-group col-xs-5">
+        <input id="search-key" type="text" class="form-control" placeholder="Search for...">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">Search</button>
+        </span>
+      </div><!-- /input-group -->
+    </form>
 
-  <div id="search-result-count"></div>
-  <div>
-    Result: <span id="search-result"></span>
-  </div>
+    <div id="search-result" class="row" style="padding-top:30px">
+      <div class="container">
+        <div class="jumbotron">
+          <h1>Lets' Search Products!</h1>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end container -->
+  <footer class="row">
+    <div class="panel-footer text-center">
+      <p>Copyright 2015 jojonki. All right reserved.</p>
+    </div>
+  </footer>
 
   <script type="text/template" id="product-template">
-<a href="<%- url %>" target="_blank"><img src="<%- image %>"></a> 
-    <a href="<%- url %>" target="_blank"><%- title %></a> 
-    <div>New: <%- price.lowestNew %>. Used: <%- price.lowestUsed %></div>
-    <!-- <iframe src="<%- review %>"> -->
+    <div class="col-sm-6 col-md-4">
+      <div class="thumbnail">
+        <a href="<%- url %>" target="_blank"><img class="media-object" src="<%- image %>"></a> 
+        <div class="caption">
+          <a href="<%- url %>" target="_blank"><%- title %></a> 
+          <p>
+            // <% if (isPrime) { %>
+            //   prime!
+            // <% } %>
+            <div class="new-price">New: <%- price.lowestNewStr %></div>
+            <div class="used-price">Used: <%- price.lowestUsedStr %></div>
+          </p>
+        </div>
+      </div>
+    </div>
+  </script>
+  <script type="text/template" id="product-template2">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="media-left">
+        <a href="<%- url %>" target="_blank"><img class="media-object" src="<%- image %>"></a> 
+      </div>
+      <div class="media-body">
+        <a href="<%- url %>" target="_blank"><%- title %></a> 
+        <div class="media-heading">New: <%- price.lowestNew %>. Used: <%- price.lowestUsed %>
+        <!-- <iframe src="<%- review %>"> -->
+        </div>
+      </div>
+    </div>
   </script>
   
+  <script src="./bower_components/loading-indicator/dist/loading.min.js"></script>
 </body>
 </html>

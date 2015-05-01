@@ -12,16 +12,24 @@
   });
 
   var ProductView = Backbone.View.extend({
-    tagName: 'li',
+    tagName: 'div',
     initialize: function() {
-      this.model.on('destroy', this.destroy, this);
+      this.model.on('destroy', this.remove, this);
+      this.model.on('reset', this.reset, this);
     },
     template: _.template($('#product-template').html()),
     destroy: function() {
-      // if(confirm('are you sure')) {
-      // this.model.destroy();
+      console.log('model destroy');
+      this.model.destroy();
+    },
+    remove: function() {
+      console.log('model remove');
       this.$el.remove();
-      // }
+    },
+    reset: function() {
+      console.log('reset in ProductView');
+      this.destroy();
+      this.remove();
     },
     render: function() {
       var template = this.template(this.model.toJSON());
@@ -31,11 +39,20 @@
   });
 
   var ProductsView = Backbone.View.extend({
-    tagName: 'ul',
+    tagName: 'div',
     initialize: function() {
       this.collection.on('add', this.addNew, this);
       this.collection.on('change', this.updateCount, this);
       this.collection.on('destroy', this.destroy, this);
+      this.collection.on('reset', this.reset, this);
+    },
+    reset: function(collection) {
+      console.log('reset', collection);
+      // collection.each(function(model) {
+      //   model.destroy();
+      //   console.log(model);
+      // });
+
     },
     addNew: function(product) {
       this.updateCount();
@@ -63,6 +80,14 @@
     }
   });
 
+  function search(key) {
+    console.log('search:', key);
+    Loading.enable('cube-grid');
+    $.get('search/' + key, function(data) {
+      Loading.destroy();
+    });
+  };
+
   var SearchView = Backbone.View.extend({
     el: '#search-form',
     events: {
@@ -71,12 +96,7 @@
     submit: function(e) {
       e.preventDefault();
       var key = $('#search-key').val();
-      console.log(key);
-      $.get('search/' + key, 
-        function(data) {
-          console.log('response', data);
-        }
-      );
+      search(key);
     }
   });
 
@@ -89,13 +109,19 @@
 
   var socket = io.connect();
   socket.on('SearchResults', function(data) {
-    console.log(data.items);
+    _.each(_.clone(products.models), function(model) {
+        model.destroy();
+    });
+    // products.each(function(model) {
+    //   if(model) {
+    //     console.log('destryo model', model);
+    //     model.destroy();
+    //   } else { console.log('model undefined'); }
+    // });
     data.items.forEach(function(item) {
       if(_.has(item, 'OfferSummary')) { // except kindle price
         var product = new Product();
         var decoratedData = Util.decorateData(item);
-        console.log(item);
-        console.log(decoratedData);
         // if(product.set({title: item.ItemAttributes[0].Title[0], url: item.DetailPageURL[0]}, {validate: true})) {
         if(product.set(decoratedData, {validate: true})) {
           products.add(product);
@@ -103,4 +129,6 @@
       }
     });
   });
+
+  search('unity');
  });
